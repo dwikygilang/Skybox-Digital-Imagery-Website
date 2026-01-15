@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skybox | Visual Effect & Animation Studio</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-dark: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+      --text: #f5f5f5;
+      --accent: #00e0ff;
+      --accent-glow: 0 0 15px rgba(0,224,255,0.6);
+      --gray: #999;
+    }
+
+    [data-theme="light"] {
+      --bg-dark: linear-gradient(180deg, #fafafa 0%, #eaeaea 100%);
+      --text: #0a0a0a;
+      --accent: #009fbf;
+      --accent-glow: 0 0 10px rgba(0,160,190,0.5);
+      --gray: #444;
+    }
+
+    * {
+      font-family: "Poppins", sans-serif;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* Navbar */
+    .navbar .nav-link {
+    color: var(--text) !important;
+    font-weight: 500;
+    margin-left: 2rem;
+    transition: color 0.3s, text-shadow 0.3s;
+    }
+    .navbar .nav-link:hover {
+      color: var(--accent) !important;
+      text-shadow: 0 0 10px rgba(0,224,255,0.8);
+    }
+    .navbar.scrolled {
+      background: rgba(0,0,0,0.7);
+    }
+    .navbar-brand img {
+      height: 38px;
+    }
+    .nav-link {
+      color: var(--text) !important;
+      font-weight: 500;
+      margin: 0 0.8rem;
+      position: relative;
+      
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--accent);
+      transition: 0.3s;
+    }
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    /* Toggle */
+    .theme-toggle {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    /* Hero */
+    #hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    #hero video {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: brightness(55%);
+      z-index: 1;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(0,224,255,0.1), rgba(0,0,0,0.9));
+      z-index: 2;
+    }
+    .hero-text {
+      z-index: 3;
+      padding: 0 1.5rem;
+    }
+    .hero-text h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--text);
+      text-shadow: var(--accent-glow);
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+    .hero-text p {
+      color: var(--gray);
+      max-width: 650px;
+      margin: 0 auto 2rem;
+    }
+    .btn-cta {
+      background: var(--accent);
+      color: #000;
+      padding: 0.9rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      text-transform: uppercase;
+      box-shadow: var(--accent-glow);
+      transition: 0.3s;
+    }
+    .btn-cta:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px var(--accent);
+    }
+
+    /* About */
+    #about {
+      padding: 6rem 2rem;
+    }
+    #about .content {
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      align-items: center;
+      gap: 2rem;
+    }
+    #about h2 {
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+    }
+    #about p {
+      color: var(--gray);
+      line-height: 1.8;
+      font-size: 1.1rem;
+    }
+
+    /* Works */
+    #works {
+      padding: 6rem 2rem;
+      text-align: center;
+    }
+    #works h2 {
+      color: var(--accent);
+      margin-bottom: 3rem;
+    }
+    .gallery-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      justify-content: center;
+      max-width: 1100px;
+      margin: auto;
+    }
+    .gallery-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      transform: translateY(40px);
+      opacity: 0;
+      transition: all 0.6s ease;
+    }
+    .gallery-card.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .gallery-card iframe {
+      width: 100%;
+      height: 220px;
+      border: none;
+      filter: brightness(90%);
+    }
+    .card-body {
+      padding: 1.2rem;
+      color: var(--gray);
+    }
+
+        /* Movie Works (Enhanced Cinematic Version) */
+    #movies {
+      padding: 6rem 2rem;
+      text-align: center;
+      background: radial-gradient(circle at center, #0a0a0a 0%, #111 100%);
+      position: relative;
+    }
+    #movies h2 {
+      color: var(--accent);
+      margin-bottom: 3rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: var(--accent-glow);
+    }
+    .movie-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .movie-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 0 25px rgba(0,0,0,0.5);
+      transform: translateY(40px);
+      opacity: 0;
+      transition: all 0.6s ease;
+      cursor: pointer;
+    }
+    .movie-card.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .movie-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(85%);
+      transition: transform 0.5s ease, filter 0.5s ease;
+    }
+    .movie-card:hover img {
+      transform: scale(1.1);
+      filter: brightness(100%) drop-shadow(0 0 15px rgba(0,224,255,0.3));
+    }
+    .movie-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+      opacity: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 1rem;
+      transition: 0.4s ease;
+    }
+    .movie-card:hover .movie-overlay {
+      opacity: 1;
+    }
+    .movie-overlay h5 {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 1rem;
+      text-shadow: 0 0 10px rgba(0,224,255,0.6);
+      background: rgba(0,0,0,0.5);
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      backdrop-filter: blur(5px);
+    }
+
+
+
+    /* Partner */
+    #partner {
+      background: #111;
+      padding: 5rem 0;
+    }
+    #partner h2 {
+      text-align: center;
+      color: var(--accent);
+      margin-bottom: 3rem;
+      font-weight: 700;
+    }
+    .partner-container {
+      overflow: hidden;
+    }
+    .partner-track {
+      display: flex;
+      gap: 4rem;
+      animation: scrollLeft 30s linear infinite;
+      width: max-content;
+      align-items: center;
+    }
+    .partner-track:hover {
+      animation-play-state: paused;
+    }
+    .partner-track img {
+      height: 70px;
+      opacity: 0.8;
+      transition: 0.3s;
+    }
+    .partner-track img:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    @keyframes scrollLeft {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* Contact */
+    #contact {
+      padding: 6rem 2rem;
+      background: #0c0c0c;
+      color: var(--gray);
+    }
+    #contact h2 {
+      color: var(--accent);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .contact-grid {
+      max-width: 1000px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 3rem;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      resize: none;
+    }
+    form button {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+    form button:hover {
+      transform: scale(1.05);
+      box-shadow: var(--accent-glow);
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    /* Cursor glow */
+    .cursor-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: var(--accent);
+      opacity: 0.2;
+      mix-blend-mode: lighten;
+      filter: blur(20px);
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      backdrop-filter: blur(10px);
+    }
+  </style>
+</head>
+
+<body data-theme="dark">
+  <div class="cursor-glow"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <a class="navbar-brand" href="#"><img src="./assets/img/Skybox Type [Recovered].png" alt="Skybox Logo"></a>
+      <div class="d-none d-lg-flex">
+        <a class="nav-link" href="#about">ABOUT</a>
+        <a class="nav-link" href="#works">WORKS</a>
+        <a class="nav-link" href="#partner">PARTNERS</a>
+        <a class="nav-link" href="#contact">CONTACT</a>
+      </div>
+      <!-- <button class="theme-toggle ms-3" id="themeToggle">🌙</button> -->
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <video autoplay muted loop playsinline>
+      <source src="./assets/video/header.mp4" type="video/mp4" />
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-text">
+      <h1>UNLEASH THE POWER OF VISUAL ENCHANTMENT</h1>
+      <p>We craft world-class visual effects, animation, and immersive storytelling experiences for global brands and audiences.</p>
+      <!-- <a href="#" class="btn-cta" data-bs-toggle="modal" data-bs-target="#showreelModal">View Showreel</a> -->
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="content">
+      <div>
+        <h2>Who We Are</h2>
+        <p>
+          Skybox Digital Imagery is a visionary creative studio specializing in high-end
+          <strong>visual effects</strong>, <strong>3D animation</strong>, and <strong>immersive digital experiences</strong>.
+          Based in KEK Singhasari, we blend art and technology to tell unforgettable stories from cinematic
+          visuals to interactive AR showcases.
+        </p>
+      </div>
+      <div>
+        <img src="./assets/img/Skybox Gram Type.png" alt="About" style="width:100%;max-width:400px;filter:drop-shadow(0 0 10px rgba(0,224,255,0.4));">
+      </div>
+    </div>
+  </section>
+
+    <!-- Movie Works -->
+  <section id="movies">
+    <h2>Our Work: Movie Projects</h2>
+    <div class="movie-gallery">
+      <div class="movie-card"><img src="./assets/img/poster/benAndjody.jpg" alt="Ben & Jody"><div class="movie-overlay"><h5>Ben & Jody</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/hariiniakankitaceritakannanti.jpg" alt="Hari Ini Akan Kita Ceritakan Nanti"><div class="movie-overlay"><h5>Hari Ini Akan Kita Ceritakan Nanti</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/ifihadlegsidkickyou.jpg" alt="If I Had Legs I'd Kick You"><div class="movie-overlay"><h5>If I Had Legs I'd Kick You</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/jalanpulang.jpg" alt="Jalan Pulang"><div class="movie-overlay"><h5>Jalan Pulang</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/longgoneheroes.jpg" alt="Long Gone Heroes"><div class="movie-overlay"><h5>Long Gone Heroes</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/mencuriradensaleh.jpg" alt="Mencuri Raden Saleh"><div class="movie-overlay"><h5>Mencuri Raden Saleh</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/perangkota.jpg" alt="Perang Kota"><div class="movie-overlay"><h5>Perang Kota</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/perempuampembawasial.jpg" alt="Perempuan Pembawa Sial"><div class="movie-overlay"><h5>Perempuan Pembawa Sial</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/yolo.jpg" alt="YOLO"><div class="movie-overlay"><h5>YOLO</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/zonamerah.jpg" alt="Zona Merah"><div class="movie-overlay"><h5>Zona Merah</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/tukartakdir.jpg" alt="Tukar Takdir"><div class="movie-overlay"><h5>Tukar Takdir</h5></div></div>
+    </div>
+  </section>
+
+
+
+  <!-- Works -->
+  <section id="works">
+    <h2>Our 3D Scan Showcase</h2>
+    <div class="gallery-wrapper">
+      <div class="gallery-card"><iframe src="https://3dar.skybox.ltd/arca/"></iframe><div class="card-body"><h5>Arca</h5><p>3D Scan Statue of Arca.</p></div></div>
+      <div class="gallery-card"><iframe src="https://3dar.skybox.ltd/dwarapala/"></iframe><div class="card-body"><h5>Dwarapala</h5><p>3D Scan Statue of Dwarapala.</p></div></div>
+      <div class="gallery-card"><iframe src="https://3dar.skybox.ltd/pendopo/"></iframe><div class="card-body"><h5>Pendopo</h5><p>3D Scan Environment Pendopo.</p></div></div>
+    </div>
+  </section>
+
+  <!-- Partner -->
+  <section id="partner">
+    <div class="container text-center">
+      <h2>Our Partners</h2>
+      <div class="partner-container">
+        <div class="partner-track">
+          <img src="./assets/logo/Animation Factory.png" alt="">
+          <img src="./assets/logo/Chiyo.png" alt="">
+          <img src="./assets/logo/Heartz.png" alt="">
+          <img src="./assets/logo/Meraki.png" alt="">
+          <img src="./assets/logo/Vidio.png" alt="">
+          <img src="./assets/logo/Animation Factory.png" alt="">
+          <img src="./assets/logo/Chiyo.png" alt="">
+          <img src="./assets/logo/Heartz.png" alt="">
+          <img src="./assets/logo/Meraki.png" alt="">
+          <img src="./assets/logo/Vidio.png" alt="">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <div class="contact-grid">
+      <form>
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Email Address" required>
+        <textarea rows="4" placeholder="Your Message"></textarea>
+        <button type="submit">Send Message</button>
+      </form>
+      <div>
+        <p><strong>Email:</strong> <a href="mailto:info@skybox.ltd">info@skybox.ltd</a></p>
+        <p><strong>Phone:</strong> 0341-5012009</p>
+        <p><strong>Address:</strong> Cluster Animation & Film Factory, KEK Singhasari, 65153</p>
+        <p style="margin-top:1rem;">
+          <!-- <a href="#" style="margin-right:15px;color:var(--accent);">Instagram</a>
+          <a href="#" style="margin-right:15px;color:var(--accent);">LinkedIn</a>
+          <a href="#" style="color:var(--accent);">YouTube</a> -->
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <small>&copy; 2025 Skybox Digital Imagery. All Rights Reserved.</small>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal fade" id="showreelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-transparent border-0">
+        <div class="ratio ratio-16x9">
+          <iframe src="https://www.youtube.com/embed/5qEGJe179N8?si=l0CA-n2R-0cXvB9-" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  
+  <script>
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 80);
+    });
+
+    // Gallery animation
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.gallery-card').forEach(el => observer.observe(el));
+
+        // Movie poster animation
+    document.querySelectorAll('.movie-card').forEach(el => observer.observe(el));
+
+
+
+    // Glow cursor
+    const cursor = document.querySelector('.cursor-glow');
+    let x = 0, y = 0;
+    let targetX = 0, targetY = 0;
+
+    document.addEventListener('mousemove', e => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+    });
+
+    function animateCursor() {
+      x += (targetX - x) * 0.15;
+      y += (targetY - y) * 0.15;
+      cursor.style.transform = `translate(${x - 15}px, ${y - 15}px)`;
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Theme toggle
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', () => {
+      const current = document.body.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', newTheme);
+      toggle.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+    });
+
+    // GSAP scroll animations
+    gsap.utils.toArray('section').forEach((section) => {
+      gsap.from(section, {
+        scrollTrigger: { trigger: section, start: "top 80%" },
+        opacity: 0,
+        y: 50,
+        duration: 1.2,
+        ease: "power3.out"
+      });
+    });
+    window.addEventListener('load', () => {
+    gsap.from('.hero-text h1', { opacity: 0, y: 40, duration: 1, ease: "power3.out" });
+    gsap.from('.hero-text p', { opacity: 0, y: 30, duration: 1.2, delay: 0.3 });
+    gsap.from('.btn-cta', { opacity: 0, scale: 0.8, duration: 1, delay: 0.6 });
+  });
+
+  </script>
+</body>
+</html>

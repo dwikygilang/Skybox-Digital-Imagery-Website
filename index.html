@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skybox | Visual Effect & Animation Studio</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+  <style>
+    :root {
+      --bg-dark: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+      --text: #f5f5f5;
+      --accent: #00e0ff;
+      --accent-glow: 0 0 15px rgba(0,224,255,0.6);
+      --gray: #999;
+    }
+
+    [data-theme="light"] {
+      --bg-dark: linear-gradient(180deg, #fafafa 0%, #eaeaea 100%);
+      --text: #0a0a0a;
+      --accent: #009fbf;
+      --accent-glow: 0 0 10px rgba(0,160,190,0.5);
+      --gray: #444;
+    }
+
+    * {
+      font-family: "Poppins", sans-serif;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-dark);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* Navbar Enhanced */
+    .navbar {
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .navbar.scrolled {
+      background: rgba(0,0,0,0.85) !important;
+    }
+    .navbar-brand img {
+      height: 40px;
+      transition: 0.3s;
+    }
+    .navbar-brand:hover img {
+      filter: drop-shadow(0 0 10px rgba(0,224,255,0.5));
+    }
+    .nav-link {
+      color: var(--text) !important;
+      font-weight: 500;
+      margin: 0 0.8rem;
+      position: relative;
+      font-size: 0.95rem;
+    }
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--accent);
+      transition: 0.3s;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+    .nav-link:hover {
+      color: var(--accent) !important;
+      text-shadow: 0 0 10px rgba(0,224,255,0.8);
+    }
+
+    /* Navbar Mobile Toggle */
+    .navbar-toggler {
+      border: none;
+      color: var(--accent);
+    }
+    .navbar-toggler:focus {
+      box-shadow: 0 0 10px rgba(0,224,255,0.5);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      border: 2px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+    .theme-toggle:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* Hero Enhanced */
+    #hero {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      overflow: hidden;
+    }
+    #hero video {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: brightness(55%);
+      z-index: 1;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(0,224,255,0.1), rgba(0,0,0,0.9));
+      z-index: 2;
+    }
+    .hero-text {
+      z-index: 3;
+      padding: 0 1.5rem;
+      animation: fadeInUp 1s ease-out;
+    }
+    .hero-text h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 700;
+      color: var(--text);
+      text-shadow: var(--accent-glow);
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+      word-spacing: 0.1em;
+    }
+    .hero-text p {
+      color: var(--gray);
+      max-width: 650px;
+      margin: 0 auto 2rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+    .btn-cta {
+      display: inline-block;
+      background: var(--accent);
+      color: #000;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      text-transform: uppercase;
+      box-shadow: var(--accent-glow);
+      transition: all 0.3s;
+      border: 2px solid var(--accent);
+    }
+    .btn-cta:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 30px var(--accent);
+      background: transparent;
+      color: var(--accent);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* About Enhanced */
+    #about {
+      padding: 6rem 2rem;
+      position: relative;
+    }
+    #about::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,224,255,0.5), transparent);
+    }
+    #about .content {
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      align-items: center;
+      gap: 3rem;
+    }
+    #about h2 {
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      font-size: 2.2rem;
+    }
+    #about p {
+      color: var(--gray);
+      line-height: 1.8;
+      font-size: 1.1rem;
+    }
+    #about strong {
+      color: var(--text);
+    }
+
+    /* Works */
+    #works {
+      padding: 6rem 2rem;
+      text-align: center;
+      position: relative;
+    }
+    #works h2 {
+      color: var(--accent);
+      margin-bottom: 3rem;
+      font-size: 2.2rem;
+    }
+    .gallery-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      justify-content: center;
+      max-width: 1100px;
+      margin: auto;
+    }
+    .gallery-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,224,255,0.2);
+      transform: translateY(40px);
+      opacity: 0;
+      transition: all 0.6s ease;
+    }
+    .gallery-card.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .gallery-card:hover {
+      box-shadow: 0 0 40px rgba(0,224,255,0.4);
+      border-color: rgba(0,224,255,0.5);
+    }
+    .gallery-card iframe {
+      width: 100%;
+      height: 220px;
+      border: none;
+      filter: brightness(90%);
+    }
+    .card-body {
+      padding: 1.2rem;
+      color: var(--gray);
+    }
+    .card-body h5 {
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Movie Works Enhanced */
+    #movies {
+      padding: 6rem 2rem;
+      text-align: center;
+      background: radial-gradient(circle at center, #0a0a0a 0%, #111 100%);
+      position: relative;
+    }
+    #movies::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,224,255,0.5), transparent);
+    }
+    #movies h2 {
+      color: var(--accent);
+      margin-bottom: 3rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: var(--accent-glow);
+      font-size: 2.2rem;
+    }
+    .movie-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+    .movie-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 0 25px rgba(0,0,0,0.5);
+      border: 1px solid rgba(0,224,255,0.2);
+      transform: translateY(40px);
+      opacity: 0;
+      transition: all 0.6s ease;
+      cursor: pointer;
+      aspect-ratio: 3/4;
+    }
+    .movie-card.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .movie-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(85%);
+      transition: transform 0.5s ease, filter 0.5s ease;
+    }
+    .movie-card:hover img {
+      transform: scale(1.08);
+      filter: brightness(100%) drop-shadow(0 0 15px rgba(0,224,255,0.3));
+    }
+    .movie-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1));
+      opacity: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 1.5rem;
+      transition: 0.4s ease;
+    }
+    .movie-card:hover .movie-overlay {
+      opacity: 1;
+    }
+    .movie-overlay h5 {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 1rem;
+      text-shadow: 0 0 10px rgba(0,224,255,0.6);
+      background: rgba(0,0,0,0.6);
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(0,224,255,0.3);
+    }
+
+    /* Partner Enhanced */
+    #partner {
+      background: #111;
+      padding: 5rem 0;
+      position: relative;
+    }
+    #partner::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,224,255,0.5), transparent);
+    }
+    #partner h2 {
+      text-align: center;
+      color: var(--accent);
+      margin-bottom: 3rem;
+      font-weight: 700;
+      font-size: 2.2rem;
+    }
+    .partner-container {
+      overflow: hidden;
+    }
+    .partner-track {
+      display: flex;
+      gap: 4rem;
+      animation: scrollLeft 30s linear infinite;
+      width: max-content;
+      align-items: center;
+    }
+    .partner-track:hover {
+      animation-play-state: paused;
+    }
+    .partner-track img {
+      height: 70px;
+      opacity: 0.6;
+      transition: all 0.3s;
+    }
+    .partner-track img:hover {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    @keyframes scrollLeft {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* Contact Enhanced */
+    #contact {
+      padding: 6rem 2rem;
+      background: #0c0c0c;
+      color: var(--gray);
+      position: relative;
+    }
+    #contact::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,224,255,0.5), transparent);
+    }
+    #contact h2 {
+      color: var(--accent);
+      margin-bottom: 3rem;
+      text-align: center;
+      font-size: 2.2rem;
+    }
+    .contact-grid {
+      max-width: 1000px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 3rem;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 0.9rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(0,224,255,0.3);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      resize: none;
+      transition: all 0.3s;
+    }
+    form input:focus, form textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 15px rgba(0,224,255,0.2);
+    }
+    form button {
+      background: var(--accent);
+      color: #000;
+      border: 2px solid var(--accent);
+      padding: 0.9rem 2rem;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: all 0.3s;
+      cursor: pointer;
+      width: 100%;
+    }
+    form button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 25px var(--accent);
+      background: transparent;
+      color: var(--accent);
+    }
+    .contact-info p {
+      margin-bottom: 1rem;
+      line-height: 1.6;
+    }
+    .contact-info a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .contact-info a:hover {
+      text-shadow: 0 0 10px rgba(0,224,255,0.6);
+    }
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      transition: all 0.3s;
+    }
+    .social-links a:hover {
+      background: var(--accent);
+      color: #000;
+      transform: translateY(-3px);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    /* Cursor glow */
+    .cursor-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: var(--accent);
+      opacity: 0.2;
+      mix-blend-mode: lighten;
+      filter: blur(20px);
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      backdrop-filter: blur(10px);
+    }
+    .modal-content {
+      background: rgba(15,15,15,0.95);
+      border: 1px solid rgba(0,224,255,0.3);
+    }
+
+    /* ============ CINEMATIC 3D LOADER ============ */
+    #loader3D {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999999;
+      overflow: hidden;
+      transition: opacity 1s ease, visibility 1s ease;
+    }
+    #loader3D.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+    #three-canvas {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+    }
+
+    .loader-overlay {
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,#00000000 0%,#000000aa 100%);
+      mix-blend-mode:screen;
+    }
+
+    .film-grain {
+      position:absolute;
+      inset:0;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="700" height="700"><filter id="g"><feTurbulence baseFrequency="0.6" numOctaves="2"/></filter><rect width="100%" height="100%" filter="url(%23g)" opacity="0.08"/></svg>');
+      mix-blend-mode:overlay;
+      opacity:0.8;
+    }
+
+    .logo-plate{
+      position:absolute;
+      text-align:center;
+      pointer-events:none;
+    }
+    .logo-plate h1{
+      color:#00e0ff;
+      font-size:clamp(30px,5vw,60px);
+      letter-spacing:8px;
+      font-weight:800;
+      text-shadow:0 0 20px rgba(0,224,255,0.8);
+      opacity:0;
+      transform:translateY(20px);
+      transition: all 1.1s cubic-bezier(.2,.9,.3,1);
+    }
+    .logo-plate p{
+      color:rgba(255,255,255,0.7);
+      margin-top:10px;
+      opacity:0;
+      transition:1s ease;
+    }
+
+    .loader-footer{
+      position:absolute;
+      bottom:30px;
+      width:100%;
+      text-align:center;
+      color:rgba(255,255,255,0.5);
+      font-size:14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-link {
+        margin: 0.5rem 0;
+      }
+      .movie-gallery {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+    }
+  </style>
+</head>
+
+<body data-theme="dark">
+  <!-- ========== CINEMATIC 3D LOADER ========== -->
+  <div id="loader3D">
+    <canvas id="three-canvas"></canvas>
+    <div class="logo-plate">
+      <h1 id="loader-title">SKYBOX</h1>
+      <p id="loader-sub">Digital Imagery — Visual Effects & Animation</p>
+    </div>
+    <div class="loader-overlay"></div>
+    <div class="film-grain"></div>
+    <div class="loader-footer">Crafting cinematic visuals…</div>
+  </div>
+
+  <div class="cursor-glow"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#"><img src="./assets/img/Skybox Type [Recovered].png" alt="Skybox Logo"></a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <i class="bi bi-menu-button"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <div class="ms-auto d-flex align-items-center gap-3">
+          <a class="nav-link" href="#about">ABOUT</a>
+          <a class="nav-link" href="#movies">WORKS</a>
+          <a class="nav-link" href="#partner">PARTNERS</a>
+          <a class="nav-link" href="#contact">CONTACT</a>
+          <button class="theme-toggle" id="themeToggle"><i class="bi bi-moon-stars"></i></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <video autoplay muted loop playsinline>
+      <source src="./assets/video/header.mp4" type="video/mp4" />
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-text">
+      <h1>UNLEASH THE POWER OF VISUAL ENCHANTMENT</h1>
+      <p>We craft world-class visual effects, animation, and immersive storytelling experiences for global brands and audiences.</p>
+      <a href="#" class="btn-cta" data-bs-toggle="modal" data-bs-target="#showreelModal">View Showreel</a>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about">
+    <div class="content">
+      <div>
+        <h2>Who We Are</h2>
+        <p>
+          Skybox Digital Imagery is a visionary creative studio specializing in high-end
+          <strong>visual effects</strong>, <strong>3D animation</strong>, and <strong>immersive digital experiences</strong>.
+          Based in KEK Singhasari, we blend art and technology to tell unforgettable stories from cinematic
+          visuals to interactive AR showcases.
+        </p>
+      </div>
+      <div>
+        <img src="./assets/img/Skybox Gram Type.png" alt="About" style="width:100%;max-width:400px;filter:drop-shadow(0 0 10px rgba(0,224,255,0.4));">
+      </div>
+    </div>
+  </section>
+
+  <!-- Movie Works -->
+  <section id="movies">
+    <h2>Our Work: Movie Projects</h2>
+    <div class="movie-gallery">
+      <div class="movie-card"><img src="./assets/img/poster/benAndjody.jpg" alt="Ben & Jody"><div class="movie-overlay"><h5>Ben & Jody</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/hariiniakankitaceritakannanti.jpg" alt="Hari Ini Akan Kita Ceritakan Nanti"><div class="movie-overlay"><h5>Hari Ini Akan Kita Ceritakan Nanti</h5></div></div>
+      <!-- <div class="movie-card"><img src="./assets/img/poster/ifihadlegsidkickyou.jpg" alt="If I Had Legs I'd Kick You"><div class="movie-overlay"><h5>If I Had Legs I'd Kick You</h5></div></div> -->
+      <div class="movie-card"><img src="./assets/img/poster/jalanpulang.jpg" alt="Jalan Pulang"><div class="movie-overlay"><h5>Jalan Pulang</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/longgoneheroes.jpg" alt="Long Gone Heroes"><div class="movie-overlay"><h5>Long Gone Heroes</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/mencuriradensaleh.jpg" alt="Mencuri Raden Saleh"><div class="movie-overlay"><h5>Mencuri Raden Saleh</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/perangkota.jpg" alt="Perang Kota"><div class="movie-overlay"><h5>Perang Kota</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/perempuampembawasial.jpg" alt="Perempuan Pembawa Sial"><div class="movie-overlay"><h5>Perempuan Pembawa Sial</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/yolo.jpg" alt="YOLO"><div class="movie-overlay"><h5>YOLO</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/zonamerah.jpg" alt="Zona Merah"><div class="movie-overlay"><h5>Zona Merah</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/tukartakdir.jpg" alt="Tukar Takdir"><div class="movie-overlay"><h5>Tukar Takdir</h5></div></div>
+      <div class="movie-card"><img src="./assets/img/poster/suratuntukmasamudaku.jpg" alt="Tukar Takdir"><div class="movie-overlay"><h5>Surat Untuk Masa Mudaku</h5></div></div>
+    </div>
+  </section>
+
+  <!-- Works -->
+  <section id="works">
+    <h2>Our 3D Scan Showcase</h2>
+    <div class="gallery-wrapper">
+      <div class="gallery-card"><iframe src="https://3dar.skybox.ltd/arca/"></iframe><div class="card-body"><h5>Arca</h5><p>3D Scan Statue of Arca.</p></div></div>
+      <div class="gallery-card"><iframe src="https://3dar.skybox.ltd/dwarapala/"></iframe><div class="card-body"><h5>Dwarapala</h5><p>3D Scan Statue of Dwarapala.</p></div></div>
+      <div class="gallery-card"><iframe src="https://3dar.skybox.ltd/pendopo/"></iframe><div class="card-body"><h5>Pendopo</h5><p>3D Scan Environment Pendopo.</p></div></div>
+    </div>
+  </section>
+
+  <!-- Partner -->
+  <section id="partner">
+    <div class="container text-center">
+      <h2>Our Partners</h2>
+      <div class="partner-container">
+        <div class="partner-track">
+          <img src="./assets/logo/AFTERTAKE_LOGO.png" alt="Animation Factory">
+          <img src="./assets/logo/BUDDY BUDDY PICTURES_logo.png" alt="Chiyo">
+          <img src="./assets/logo/exodusfxLogoClean.png" alt="Heartz">
+          <img src="./assets/logo/Lionsgate_Logo.svg" alt="Meraki">
+          <img src="./assets/logo/Logo-Leo-Pictures-White.webp" alt="Vidio">
+          <img src="./assets/logo/Netflix_2015_logo.svg" alt="Animation Factory">
+          <img src="./assets/logo/screenplay_productionspt_logo.jpeg" alt="Chiyo">
+          <img src="./assets/logo/SINESURYA_logo.png" alt="Heartz">
+          <img src="./assets/logo/Starvisionplus.png" alt="Meraki">
+          <img src="./assets/logo/Vidio_logo.svg" alt="Vidio">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <h2>Contact Us</h2>
+    <div class="contact-grid">
+      <form id="contactForm">
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Email Address" required>
+        <textarea rows="4" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+      </form>
+      <div class="contact-info">
+        <p><strong>Email:</strong> <a href="mailto:info@skybox.ltd">info@skybox.ltd</a></p>
+        <p><strong>Phone:</strong> <a href="tel:+62341501200">0341-5012009</a></p>
+        <p><strong>Address:</strong> Cluster Animation & Film Factory, KEK Singhasari, 65153</p>
+        <div class="social-links">
+          <!-- <a href="https://instagram.com" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
+          <a href="https://linkedin.com" target="_blank" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+          <a href="https://youtube.com" target="_blank" title="YouTube"><i class="bi bi-youtube"></i></a> -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <small>&copy; 2025 Skybox Digital Imagery. All Rights Reserved.</small>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal fade" id="showreelModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content bg-transparent border-0">
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="ratio ratio-16x9">
+          <iframe src="https://www.youtube.com/embed/5qEGJe179N8?si=l0CA-n2R-0cXvB9-" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  
+  <script>
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 80);
+    });
+
+    // Gallery animation
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.gallery-card').forEach(el => observer.observe(el));
+    document.querySelectorAll('.movie-card').forEach(el => observer.observe(el));
+
+    // Glow cursor
+    const cursor = document.querySelector('.cursor-glow');
+    let x = 0, y = 0;
+    let targetX = 0, targetY = 0;
+
+    document.addEventListener('mousemove', e => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+    });
+
+    function animateCursor() {
+      x += (targetX - x) * 0.15;
+      y += (targetY - y) * 0.15;
+      cursor.style.transform = `translate(${x - 15}px, ${y - 15}px)`;
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Theme toggle
+    const toggle = document.getElementById('themeToggle');
+    toggle.addEventListener('click', () => {
+      const current = document.body.getAttribute('data-theme');
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
+
+    // Form submission
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Thank you! Your message has been sent.');
+      e.target.reset();
+    });
+
+    // GSAP scroll animations
+    gsap.utils.toArray('section').forEach((section) => {
+      gsap.from(section, {
+        scrollTrigger: { trigger: section, start: "top 80%" },
+        opacity: 0,
+        y: 50,
+        duration: 1.2,
+        ease: "power3.out"
+      });
+    });
+
+    window.addEventListener('load', () => {
+      gsap.from('.hero-text h1', { opacity: 0, y: 40, duration: 1, ease: "power3.out" });
+      gsap.from('.hero-text p', { opacity: 0, y: 30, duration: 1.2, delay: 0.3 });
+      gsap.from('.btn-cta', { opacity: 0, scale: 0.8, duration: 1, delay: 0.6 });
+    });
+  </script>
+
+  <!-- THREE.JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <script>
+    /* ======== 3D LOADER SETUP ======== */
+    const loaderScreen = document.getElementById("loader3D");
+    const canvas = document.getElementById("three-canvas");
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
+    camera.position.z = 6;
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+    });
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    /* --- Neon Torus --- */
+    const geometry = new THREE.TorusGeometry(2, 0.3, 32, 200);
+    const material = new THREE.MeshBasicMaterial({
+      color: 0x00e0ff,
+      wireframe: true,
+    });
+    const torus = new THREE.Mesh(geometry, material);
+    torus.rotation.x = 0.4;
+    scene.add(torus);
+
+    /* --- Floating Particles --- */
+    const pCount = 900;
+    const pos = new Float32Array(pCount * 3);
+    for (let i = 0; i < pCount * 3; i++) {
+      pos[i] = (Math.random() - 0.5) * 10;
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    const pMat = new THREE.PointsMaterial({ color: 0x00e0ff, size: 0.03 });
+    const particles = new THREE.Points(pGeo, pMat);
+    scene.add(particles);
+
+    /* --- Animation Loop --- */
+    function animate() {
+      torus.rotation.y += 0.01;
+      torus.rotation.x += 0.003;
+      particles.rotation.y += 0.001;
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    /* --- Resize --- */
+    window.addEventListener("resize", () => {
+      renderer.setSize(innerWidth, innerHeight);
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+    });
+
+    /* --- Fade out loader when site loaded --- */
+    window.addEventListener("load", () => {
+      const title = document.getElementById("loader-title");
+      const sub = document.getElementById("loader-sub");
+
+      title.style.opacity = 1;
+      title.style.transform = "translateY(0)";
+      setTimeout(() => (sub.style.opacity = 1), 300);
+
+      setTimeout(() => {
+        loaderScreen.classList.add("hidden");
+      }, 1800);
+    });
+  </script>
+
+</body>
+</html>

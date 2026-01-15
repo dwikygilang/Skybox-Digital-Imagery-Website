@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 492.01 323.37">
+  <defs>
+    <style>
+      .cls-1, .cls-2, .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-4 {
+        letter-spacing: .12em;
+      }
+
+      .cls-5 {
+        letter-spacing: .15em;
+      }
+
+      .cls-6 {
+        letter-spacing: .18em;
+      }
+
+      .cls-2 {
+        font-family: CambriaMath, 'Cambria Math';
+        font-size: 16px;
+      }
+
+      .cls-7 {
+        letter-spacing: .2em;
+      }
+
+      .cls-3 {
+        font-family: TrebuchetMS-Bold, 'Trebuchet MS';
+        font-size: 23px;
+        font-weight: 700;
+        letter-spacing: .44em;
+      }
+    </style>
+  </defs>
+  <rect y="138.37" width="185" height="185"/>
+  <g>
+    <polygon class="cls-1" points="405.15 127.26 422.59 116.57 346.51 72.28 346.51 64.96 328.37 55.96 328.37 132.74 398.54 174.78 398.54 154.67 346.51 123.46 346.51 93.09 405.15 127.26"/>
+    <polygon class="cls-1" points="406.59 0 333.44 43.59 351.72 54 406.59 21.94 461.46 54 479.74 43.59 406.59 0"/>
+    <polygon class="cls-1" points="466.66 64.96 466.66 72.28 466.66 87.91 408.02 53.74 390.59 64.42 466.66 108.72 466.66 123.46 414.63 154.67 414.63 174.78 484.8 132.74 484.8 55.96 466.66 64.96"/>
+  </g>
+  <text class="cls-3" transform="translate(336.17 256.63)"><tspan x="0" y="0">SKYBOX</tspan></text>
+  <text class="cls-2" transform="translate(317.74 272.36) scale(1 .8)"><tspan class="cls-7" x="0" y="0">DIGI</tspan><tspan class="cls-4" x="43.53" y="0">T</tspan><tspan class="cls-7" x="54.95" y="0">AL IM</tspan><tspan class="cls-6" x="111.27" y="0">A</tspan><tspan class="cls-7" x="124.18" y="0">GE</tspan><tspan class="cls-5" x="149.55" y="0">R</tspan><tspan class="cls-7" x="161.94" y="0">Y</tspan></text>
+</svg>
