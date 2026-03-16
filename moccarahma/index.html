@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>moccarahma ✦</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg: #0d0810;
+  --bg2: #130b18;
+  --pink1: #ff6b9d;
+  --pink2: #e8405a;
+  --pink3: #ffacc7;
+  --pink4: #ffd6e7;
+  --rose:  #c9405a;
+  --gold:  #f0c080;
+  --white: #fff9fb;
+  --muted: rgba(255,180,210,0.5);
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,150,190,0.15);
+  --radius: 22px;
+}
+
+html{ scroll-behavior:smooth }
+
+body{
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CANVAS BACKGROUND ── */
+#bgCanvas{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+}
+
+/* ── GRAIN OVERLAY ── */
+.grain{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity:0.055;
+  background-size:200px 200px;
+}
+
+/* ── VIGNETTE ── */
+.vignette{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 40%, rgba(10,5,14,0.8) 100%);
+}
+
+/* ── CURSOR ── */
+.cur{
+  position:fixed;width:8px;height:8px;
+  background:var(--pink1);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,background .2s;
+  mix-blend-mode:screen;
+}
+.cur-ring{
+  position:fixed;width:36px;height:36px;
+  border:1px solid rgba(255,107,157,0.5);border-radius:50%;
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:all .12s ease;
+}
+.cur.hover{width:16px;height:16px;background:var(--pink3);}
+.cur-ring.hover{width:52px;height:52px;border-color:var(--pink1);opacity:.7;}
+
+/* ── LAYOUT ── */
+.wrap{
+  position:relative;z-index:2;
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;
+  padding: 60px 20px 80px;
+}
+
+/* ── DECORATIVE TOP LINE ── */
+.top-deco{
+  width:1px;height:50px;
+  background: linear-gradient(to bottom, transparent, var(--pink1));
+  margin-bottom:30px;
+  opacity:0;animation:fadeIn .8s ease .1s forwards;
+}
+
+/* ── PROFILE ── */
+.profile{
+  display:flex;flex-direction:column;align-items:center;
+  margin-bottom:44px;
+  opacity:0;animation:riseUp .9s cubic-bezier(.16,1,.3,1) .3s forwards;
+}
+
+/* Avatar with layered rings */
+.av-wrap{position:relative;margin-bottom:22px;}
+
+.av-orbit{
+  position:absolute;
+  border-radius:50%;
+  border:1px solid;
+  animation:orbit linear infinite;
+}
+.av-orbit-1{
+  inset:-18px;
+  border-color:rgba(255,107,157,0.25);
+  animation-duration:12s;
+}
+.av-orbit-2{
+  inset:-30px;
+  border-color:rgba(255,107,157,0.12);
+  border-style:dashed;
+  animation-duration:20s;
+  animation-direction:reverse;
+}
+.av-orbit-3{
+  inset:-44px;
+  border-color:rgba(255,107,157,0.06);
+  animation-duration:30s;
+}
+
+/* Orbit dots */
+.av-orbit-1::before,
+.av-orbit-1::after{
+  content:'';position:absolute;width:5px;height:5px;
+  background:var(--pink1);border-radius:50%;
+  top:50%;left:-2.5px;
+  transform:translateY(-50%);
+  box-shadow:0 0 8px var(--pink1);
+}
+.av-orbit-1::after{top:-2.5px;left:50%;transform:translateX(-50%);}
+
+@keyframes orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.av-glow{
+  position:absolute;inset:-2px;border-radius:50%;
+  background:conic-gradient(from 0deg,var(--pink2),var(--pink1),var(--pink3),var(--pink4),var(--pink1),var(--pink2));
+  filter:blur(1px);
+  animation:spinGlow 4s linear infinite;
+}
+@keyframes spinGlow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+.av-inner{
+  position:relative;z-index:1;
+  width:105px;height:105px;border-radius:50%;
+  background:linear-gradient(135deg,#1e0f1a,#2a1525);
+  border:2.5px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+  box-shadow:
+    0 0 0 1px rgba(255,107,157,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 20px 60px rgba(255,107,157,0.2);
+}
+
+.av-emoji{
+  font-size:50px;
+  filter:drop-shadow(0 0 12px rgba(255,107,157,0.6));
+  animation:pulseEmoji 3s ease-in-out infinite;
+  position:relative;z-index:1;
+}
+@keyframes pulseEmoji{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.07);}
+}
+
+.av-shine{
+  position:absolute;inset:0;border-radius:50%;
+  background:linear-gradient(135deg,rgba(255,255,255,0.12) 0%,transparent 60%);
+  pointer-events:none;
+}
+
+/* Name */
+.name{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2.2rem,7vw,3.2rem);
+  font-weight:400;
+  letter-spacing:0.04em;
+  line-height:1;
+  text-align:center;
+  background:linear-gradient(135deg,var(--white) 0%,var(--pink3) 50%,var(--pink1) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 30px rgba(255,107,157,0.25));
+}
+.name em{
+  font-style:italic;
+  background:linear-gradient(135deg,var(--pink1),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.handle{
+  font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);margin-top:6px;
+}
+
+/* Bio */
+.bio{
+  margin-top:14px;
+  font-size:.87rem;line-height:1.65;text-align:center;
+  color:rgba(255,200,220,0.6);max-width:270px;font-weight:200;
+  letter-spacing:.02em;
+}
+
+/* Stat pills */
+.stats{
+  display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;justify-content:center;
+}
+.stat-pill{
+  padding:5px 16px;
+  background:rgba(255,107,157,0.07);
+  border:1px solid rgba(255,107,157,0.18);
+  border-radius:100px;
+  font-size:.7rem;letter-spacing:.1em;color:var(--pink3);
+  backdrop-filter:blur(10px);
+  text-transform:uppercase;
+}
+
+/* ── HORIZONTAL DIVIDER ── */
+.h-div{
+  width:200px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,107,157,0.3),transparent);
+  margin:4px auto 16px;
+}
+
+/* ── SECTION LABEL ── */
+.sec-label{
+  font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(255,150,190,0.35);text-align:center;margin-bottom:10px;
+}
+
+/* ── LINKS CONTAINER ── */
+.links{
+  width:100%;max-width:430px;
+  display:flex;flex-direction:column;gap:10px;
+}
+
+/* ── LINK CARD ── */
+.card{
+  position:relative;display:flex;align-items:center;gap:14px;
+  padding:15px 18px;
+  background:var(--glass);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  text-decoration:none;color:var(--white);
+  overflow:hidden;
+  transform:translateY(30px);opacity:0;
+  animation:riseUp .7s cubic-bezier(.16,1,.3,1) forwards;
+  cursor:none;
+  transition:border-color .3s ease, box-shadow .3s ease;
+  will-change:transform;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+}
+
+/* Subtle top sheen */
+.card::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
+  pointer-events:none;
+}
+
+/* Animated gradient border reveal on hover */
+.card-border{
+  position:absolute;inset:0;border-radius:var(--radius);
+  background:conic-gradient(from var(--angle,0deg),var(--pink2),var(--pink1),var(--pink3),var(--pink4),var(--pink1),var(--pink2));
+  opacity:0;transition:opacity .4s;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  padding:1px;pointer-events:none;
+}
+.card:hover .card-border{opacity:1;}
+.card:hover{
+  border-color:transparent;
+  box-shadow:0 0 40px rgba(255,107,157,0.12),0 8px 32px rgba(0,0,0,0.4);
+}
+
+/* Glow orb behind card on hover */
+.card-glow{
+  position:absolute;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,107,157,0.15),transparent 70%);
+  right:-20px;top:50%;transform:translateY(-50%) scale(0);
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+}
+.card:hover .card-glow{transform:translateY(-50%) scale(1);}
+
+/* Icon */
+.icon{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:19px;
+  position:relative;z-index:1;
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
+}
+.card:hover .icon{transform:scale(1.12) rotate(-6deg);box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+
+.i-tiktok  {background:linear-gradient(135deg,#010101,#1a1a2e);}
+.i-ig      {background:linear-gradient(135deg,#f09433,#e6683c 30%,#dc2743 50%,#cc2366 70%,#bc1888);}
+.i-wa      {background:linear-gradient(135deg,#075e54,#25d366);}
+.i-email   {background:linear-gradient(135deg,var(--rose),var(--pink1));}
+.i-sibagi  {background:linear-gradient(135deg,#c9177e,#ff6b9d);}
+.i-social  {background:linear-gradient(135deg,#e84d0e,#f9a825);}
+.i-discord {background:linear-gradient(135deg,#3c45a5,#5865f2);}
+.i-yt      {background:linear-gradient(135deg,#900000,#ff0000);}
+
+/* Text */
+.card-text{flex:1;position:relative;z-index:1;}
+.card-title{
+  font-size:.93rem;font-weight:500;letter-spacing:.02em;
+  color:rgba(255,240,248,0.92);line-height:1.2;
+}
+.card-sub{
+  font-size:.72rem;font-weight:200;letter-spacing:.03em;
+  color:rgba(255,160,200,0.45);margin-top:3px;
+}
+
+/* Arrow */
+.card-arrow{
+  position:relative;z-index:1;
+  width:30px;height:30px;border-radius:50%;
+  border:1px solid rgba(255,107,157,0.2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .3s,border-color .3s;
+}
+.card:hover .card-arrow{
+  transform:rotate(45deg) scale(1.1);
+  background:rgba(255,107,157,0.15);
+  border-color:rgba(255,107,157,0.5);
+}
+.card-arrow svg{width:11px;height:11px;stroke:var(--pink1);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ── STAGGER DELAYS ── */
+.card:nth-child(1){animation-delay:.55s}
+.card:nth-child(2){animation-delay:.65s}
+.card:nth-child(3){animation-delay:.75s}
+.card:nth-child(4){animation-delay:.85s}
+.card:nth-child(5){animation-delay:.95s}
+.card:nth-child(6){animation-delay:1.05s}
+.card:nth-child(7){animation-delay:1.15s}
+.card:nth-child(8){animation-delay:1.25s}
+
+/* ── FOOTER ── */
+.footer{
+  margin-top:52px;text-align:center;
+  opacity:0;animation:fadeIn .8s ease 1.6s forwards;
+}
+.footer-line{
+  width:1px;height:40px;
+  background:linear-gradient(to bottom,rgba(255,107,157,0.3),transparent);
+  margin:0 auto 16px;
+}
+.footer-text{
+  font-family:'Playfair Display',serif;font-style:italic;
+  font-size:.8rem;color:rgba(255,160,200,0.3);letter-spacing:.06em;
+}
+.footer-text span{
+  display:inline-block;
+  animation:heartbeat 1.8s ease-in-out infinite;
+  color:var(--pink1);font-style:normal;
+}
+@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+
+/* ── KEYFRAMES ── */
+@keyframes riseUp{
+  from{opacity:0;transform:translateY(28px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeIn{
+  from{opacity:0}to{opacity:1}
+}
+
+/* ── SPARKLE BURST ── */
+.sp{
+  position:fixed;pointer-events:none;z-index:9997;
+  font-size:12px;line-height:1;
+  animation:spAnim .9s ease-out forwards;
+}
+@keyframes spAnim{
+  0%{opacity:1;transform:translate(0,0) scale(0) rotate(0)}
+  60%{opacity:1;}
+  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(1) rotate(var(--r))}
+}
+
+/* ── MAGNETIC FIELD ── */
+.mag-text{
+  transition:transform .4s cubic-bezier(.34,1.56,.64,1);
+  display:inline-block;
+}
+
+/* ── MOBILE ── */
+@media(max-width:480px){
+  .wrap{padding:44px 14px 60px;}
+  .card{padding:13px 15px;gap:12px;}
+  .icon{width:40px;height:40px;border-radius:12px;font-size:17px;}
+  .av-orbit-1,.av-orbit-2,.av-orbit-3{display:none;}
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(255,107,157,0.3);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- Background Canvas -->
+<canvas id="bgCanvas"></canvas>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<!-- Custom Cursor -->
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<div class="wrap">
+
+  <!-- Top decoration -->
+  <div class="top-deco"></div>
+
+  <!-- Profile -->
+  <div class="profile">
+    <div class="av-wrap">
+      <div class="av-orbit av-orbit-3"></div>
+      <div class="av-orbit av-orbit-2"></div>
+      <div class="av-orbit av-orbit-1"></div>
+      <div class="av-glow"></div>
+      <div class="av-inner">
+        <div class="av-shine"></div>
+        <span class="av-emoji">🌸</span>
+      </div>
+    </div>
+
+    <h1 class="name">mocca<em>rahma</em></h1>
+    <p class="handle">✦ &nbsp; @moccarahma &nbsp; ✦</p>
+    <p class="bio">content creator · lifestyle · aesthetic vibes<br>sharing beauty from everyday moments ♡</p>
+
+    <div class="stats">
+      <span class="stat-pill">✦ creator</span>
+      <span class="stat-pill">lifestyle</span>
+      <span class="stat-pill">aesthetic</span>
+      <span class="stat-pill">girls</span>
+    </div>
+  </div>
+
+  <!-- Links -->
+  <div class="links">
+
+    <p class="sec-label">✦ &nbsp; social media &nbsp; ✦</p>
+
+    <a class="card" href="https://www.tiktok.com/@moccarahma" target="_blank">
+      <div class="card-border"></div>
+      <div class="card-glow"></div>
+      <div class="icon i-tiktok">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.35 6.35 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.7a4.85 4.85 0 0 1-1.01-.01z"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-title">TikTok</div>
+        <div class="card-sub">Video & konten harian</div>
+      </div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <a class="card" href="https://www.instagram.com/moccarahma/" target="_blank">
+      <div class="card-border"></div>
+      <div class="card-glow"></div>
+      <div class="icon i-ig">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-title">Instagram</div>
+        <div class="card-sub">Foto & stories aesthetic</div>
+      </div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <a class="card" href="https://www.youtube.com/@moccarahma" target="_blank">
+      <div class="card-border"></div>
+      <div class="card-glow"></div>
+      <div class="icon i-yt">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon fill="#0d0810" points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-title">YouTube</div>
+        <div class="card-sub">Vlog & long-form content</div>
+      </div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <div class="h-div"></div>
+    <p class="sec-label">✦ &nbsp; kolaborasi &nbsp; ✦</p>
+
+    <a class="card" href="https://sociabuzz.com/moccarahma/tribe" target="_blank">
+      <div class="card-border"></div>
+      <div class="card-glow"></div>
+      <div class="icon i-social">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-title">Sociabuzz</div>
+        <div class="card-sub">Brand collaboration & endorsement</div>
+      </div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <a class="card" href="https://sibagi.com/moccarahma" target="_blank">
+      <div class="card-border"></div>
+      <div class="card-glow"></div>
+      <div class="icon i-sibagi">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-title">Sibagi</div>
+        <div class="card-sub">Konten & link eksklusif</div>
+      </div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <div class="h-div"></div>
+    <p class="sec-label">✦ &nbsp; say hello &nbsp; ✦</p>
+
+    <a class="card" href="https://api.whatsapp.com/send?phone=628139557955" target="_blank">
+      <div class="card-border"></div>
+      <div class="card-glow"></div>
+      <div class="icon i-wa">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-title">WhatsApp</div>
+        <div class="card-sub">Hubungi langsung & inquiry</div>
+      </div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <a class="card" href="mailto:moccarahma@gmail.com">
+      <div class="card-border"></div>
+      <div class="card-glow"></div>
+      <div class="icon i-email">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-title">Email</div>
+        <div class="card-sub">moccarahma@gmail.com</div>
+      </div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <a class="card" href="https://discord.com/invite/asFpbfhcn5" target="_blank">
+      <div class="card-border"></div>
+      <div class="card-glow"></div>
+      <div class="icon i-discord">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057c.002.022.015.04.033.056 2.052 1.508 4.041 2.423 5.993 3.029a.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.029.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      </div>
+      <div class="card-text">
+        <div class="card-title">Discord Community</div>
+        <div class="card-sub">Gabung komunitas ✨</div>
+      </div>
+      <div class="card-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-line"></div>
+    <p class="footer-text">made with <span>♥</span> &nbsp;·&nbsp; moccarahma</p>
+  </footer>
+</div>
+
+<script>
+// ══════════════════════════════
+//  AURORA / PARTICLE BACKGROUND
+// ══════════════════════════════
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, particles=[], auroras=[];
+let mx=0, my=0;
+
+function resize(){
+  W=canvas.width=window.innerWidth;
+  H=canvas.height=window.innerHeight;
+}
+resize();
+window.addEventListener('resize', ()=>{resize();initAuroras();});
+
+// Aurora blobs
+class Aurora{
+  constructor(x,y,rx,ry,color,speed){
+    this.x=x; this.y=y; this.bx=x; this.by=y;
+    this.rx=rx; this.ry=ry;
+    this.color=color; this.speed=speed;
+    this.t=Math.random()*Math.PI*2;
+    this.drift={x:(Math.random()-.5)*0.3, y:(Math.random()-.5)*0.2};
+  }
+  update(){
+    this.t+=this.speed;
+    this.x=this.bx+Math.sin(this.t*0.7)*80;
+    this.y=this.by+Math.cos(this.t*0.5)*50;
+    this.rx+=Math.sin(this.t*0.3)*0.5;
+    this.ry+=Math.cos(this.t*0.4)*0.3;
+  }
+  draw(){
+    const g=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.rx);
+    g.addColorStop(0,this.color.replace(')',',0.18)').replace('rgb','rgba'));
+    g.addColorStop(0.5,this.color.replace(')',',0.07)').replace('rgb','rgba'));
+    g.addColorStop(1,'transparent');
+    ctx.save();
+    ctx.scale(1,this.ry/this.rx);
+    ctx.beginPath();
+    ctx.arc(this.x,this.y*this.rx/this.ry,this.rx,0,Math.PI*2);
+    ctx.fillStyle=g;
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function initAuroras(){
+  auroras=[
+    new Aurora(W*.2, H*.2, 350,200,'rgb(255,80,140)',.004),
+    new Aurora(W*.8, H*.3, 280,180,'rgb(200,60,100)',.005),
+    new Aurora(W*.5, H*.7, 400,220,'rgb(255,120,170)',.003),
+    new Aurora(W*.1, H*.8, 200,150,'rgb(180,40,90)',.006),
+    new Aurora(W*.9, H*.6, 250,160,'rgb(255,90,150)',.0045),
+  ];
+}
+initAuroras();
+
+// Floating particles
+class Particle{
+  constructor(){this.reset(true);}
+  reset(rand=false){
+    this.x=Math.random()*W;
+    this.y=rand?Math.random()*H:H+20;
+    this.size=Math.random()*1.8+.4;
+    this.vx=(Math.random()-.5)*.3;
+    this.vy=-(Math.random()*.5+.15);
+    this.life=0; this.maxLife=200+Math.random()*300;
+    this.hue=330+Math.random()*30;
+    this.sat=60+Math.random()*30;
+  }
+  update(){
+    this.x+=this.vx+(mx-W/2)*.0002;
+    this.y+=this.vy+(my-H/2)*.0001;
+    this.life++;
+    if(this.life>this.maxLife||this.y<-10) this.reset();
+  }
+  draw(){
+    const alpha=Math.sin(this.life/this.maxLife*Math.PI)*0.7;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${this.hue},${this.sat}%,75%,${alpha})`;
+    ctx.fill();
+  }
+}
+for(let i=0;i<80;i++) particles.push(new Particle());
+
+// Animation loop
+function loop(){
+  ctx.clearRect(0,0,W,H);
+
+  // Deep background
+  const bg=ctx.createRadialGradient(W/2,H*.3,0,W/2,H*.3,Math.max(W,H));
+  bg.addColorStop(0,'#160a1e');
+  bg.addColorStop(0.5,'#0e0712');
+  bg.addColorStop(1,'#080510');
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,W,H);
+
+  // Auroras
+  ctx.save();
+  ctx.filter='blur(60px)';
+  auroras.forEach(a=>{a.update();a.draw();});
+  ctx.restore();
+
+  // Particles
+  particles.forEach(p=>{p.update();p.draw();});
+
+  requestAnimationFrame(loop);
+}
+loop();
+
+// ══════════════════════════════
+//  CURSOR
+// ══════════════════════════════
+const cur=document.getElementById('cur');
+const ring=document.getElementById('curRing');
+let rx=0,ry=0;
+
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+
+function animRing(){
+  rx+=(mx-rx)*.14; ry+=(my-ry)*.14;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+}
+animRing();
+
+document.querySelectorAll('.card,a').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.classList.add('hover');ring.classList.add('hover');});
+  el.addEventListener('mouseleave',()=>{cur.classList.remove('hover');ring.classList.remove('hover');});
+});
+
+// ══════════════════════════════
+//  SPARKLES ON CLICK
+// ══════════════════════════════
+const chars=['✦','◦','·','✸','♡','✿','⋆','∗'];
+document.addEventListener('click',e=>{
+  for(let i=0;i<8;i++){
+    const s=document.createElement('div');
+    s.className='sp';
+    s.textContent=chars[Math.floor(Math.random()*chars.length)];
+    const angle=Math.random()*Math.PI*2;
+    const dist=30+Math.random()*50;
+    s.style.setProperty('--tx',Math.cos(angle)*dist+'px');
+    s.style.setProperty('--ty',Math.sin(angle)*dist+'px');
+    s.style.setProperty('--r',(Math.random()*360)+'deg');
+    s.style.left=e.clientX+'px'; s.style.top=e.clientY+'px';
+    s.style.color=`hsl(${330+Math.random()*25},80%,${70+Math.random()*20}%)`;
+    s.style.fontSize=(10+Math.random()*8)+'px';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),1000);
+  }
+});
+
+// ══════════════════════════════
+//  3D MAGNETIC TILT ON CARDS
+// ══════════════════════════════
+const isMobile=window.matchMedia('(hover:none)').matches;
+if(!isMobile){
+  document.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const nx=((e.clientX-r.left)/r.width-.5);
+      const ny=((e.clientY-r.top)/r.height-.5);
+      card.style.transform=`perspective(600px) rotateX(${-ny*8}deg) rotateY(${nx*8}deg) translateY(-5px) scale(1.02)`;
+      card.style.transformStyle='preserve-3d';
+    });
+    card.addEventListener('mouseleave',()=>{
+      card.style.transform='';
+      card.style.transition='transform .6s cubic-bezier(.16,1,.3,1), border-color .3s, box-shadow .3s';
+      setTimeout(()=>card.style.transition='',700);
+    });
+  });
+
+  // Conic border angle animation
+  document.querySelectorAll('.card-border').forEach(el=>{
+    let ang=0;
+    function rot(){
+      ang=(ang+1)%360;
+      el.style.setProperty('--angle',ang+'deg');
+      requestAnimationFrame(rot);
+    }
+    rot();
+  });
+}
+
+// ══════════════════════════════
+//  MOUSE PARALLAX on BG
+// ══════════════════════════════
+document.addEventListener('mousemove',e=>{
+  const dx=(e.clientX/W-.5)*12;
+  const dy=(e.clientY/H-.5)*8;
+  document.querySelector('.wrap').style.transform=`translate(${dx*.1}px,${dy*.1}px)`;
+});
+</script>
+</body>
+</html>
